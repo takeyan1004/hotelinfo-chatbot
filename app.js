@@ -55,7 +55,7 @@ app.post('/webhook', function (req, res) {
         if (event.message) {
           receivedMessage(event);
         } else if (event.postback) {
-          receivedPostback(event);   
+          receivedPostback(event);
         } else {
           console.log("Webhook received unknown event: ", event);
         }
@@ -88,7 +88,8 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
 
   
-  
+  if(message.nlp){
+
 if(message.nlp.entities.special_request){
    
   if(message.nlp.entities.special_request[0].value === 'honey moon'){
@@ -197,7 +198,7 @@ if(message.nlp.entities.special_request){
     } else{
       sendTextMessage(senderID, "I'm sorry to hear that", "");
     }
-    } else if(message.nlp.entities.goodbye){
+    } else if(message.nlp.entities.goodbye && message.nlp.entities.goodbye[0].confidence > 0.7){
       sendTextMessage(senderID, "Good Bye!", "");
     } else if(message.nlp.entities.greetings){
       sendTextMessage(senderID, "Hello!", "");
@@ -206,10 +207,11 @@ if(message.nlp.entities.special_request){
       sendTextMessage(senderID, "A total of 10 power assisted bicycles are available for rent. Ride and visit sightseeing spots and enjoy easygoing cycling!            Hours: 8:00~17:00 (we might change the working hours according to the seasons)Fare: JPY 1,000 / hour / bicycle + JPY 500 per additional hour", "");
          }else{
       sendTextMessage(senderID, "OK, I searched some useful resource based on your request: ", messageText);
-      showActivityInfo(senderID);         
+      showActivityInfo(senderID);      
          }
 
-    } else if(message.quick_reply){
+    }
+  } else if(message.quick_reply){
 
       if(message.quick_reply.payload === "room"){
       sendTextMessage(senderID, "Thank you for selecting category. Here is the room info.", "");

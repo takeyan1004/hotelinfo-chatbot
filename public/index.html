@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+    <html>
+      <head>
+        <title>Facebook Messenger Bot</title>
+      </head>
+      <body>
+      <h1>facebook messenger chatbot</h1>
+      <p>administration test page!</p>
+        <div id="app"></div>
+
+        <div>Test<input type="text" id="new-test"　/><button id="submit-test-button">Submit</button></div>
+        <div>Contact<input type="text" id="new-contact" /><button id="submit-contact-button">Submit</button></div>
+        
+
+      <p><div id="test">test list</div></p>
+      <p><div id="contact">contact list</div></p>
+                
+<!--       <script type="text/javascript" src="bundle.js"></script> -->
+<!--       <script type="text/javascript" src="../../src/index.js"></script> -->
+      </body>
+      
+      <script src="https://www.gstatic.com/firebasejs/4.10.0/firebase.js"></script>
+      <script>
+  // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyD4Ths9sHn-VudwvFf4cU4PNq4JkgYDxL4",
+          authDomain: "chatbot-sample-6a1d0.firebaseapp.com",
+          databaseURL: "https://chatbot-sample-6a1d0.firebaseio.com",
+          projectId: "chatbot-sample-6a1d0",
+          storageBucket: "chatbot-sample-6a1d0.appspot.com",
+          messagingSenderId: "964121723942"
+        };
+        firebase.initializeApp(config);
+
+        var database = firebase.database();
+        var dataRef = database.ref('/data');
+        dataRef.once("value")
+        .then(function(snapshot) {
+          document.getElementById("test").innerHTML = snapshot.child("test").val();
+          document.getElementById("contact").innerHTML = snapshot.child("contact").val();
+        });
+
+
+        let newTest = document.getElementById("new-test");
+        let newContact = document.getElementById("new-contact");
+        
+        let submitTestButton = document.getElementById("submit-test-button");
+        let submitContactButton = document.getElementById("submit-contact-button");
+
+        
+        const submitAnswer = (input, key) => {
+          if (!input.value) {
+          return;
+          }
+                  
+          let answerRef = firebase.database().ref('data');
+          answerRef.update({[key]:input.value});
+          alert(input.value + ": submission complete!");
+
+          dataRef.once("value").then(function(snapshot) {
+            input.value = snapshot.child("key").val();
+        });
+
+        }
+
+        submitTestButton.addEventListener("click", () => {return submitAnswer(newTest, "test")});
+        submitContactButton.addEventListener("click", () => {return submitAnswer(newContact, "contact")});
+
+        
+      </script>
+        
+    </html>      

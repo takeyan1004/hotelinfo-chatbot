@@ -15,9 +15,16 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "npm": "^5.6.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "webpack": "^3.11.0",
+    "ajv": "^6.1.1",
+    "ajv-keywords": "^3.1.0",
+    "firebase": "^4.10.0"
   },
   "engines": {
-    "node": "~4.1.2"
+    "node": "6.12.3"
   }
 }

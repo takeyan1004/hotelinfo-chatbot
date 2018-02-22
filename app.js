@@ -6,7 +6,49 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
-var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><body><h1>Facebook Messenger Bot</h1></body></html>";
+const firebase = require("firebase");
+
+
+let config = {
+    apiKey: "AIzaSyD4Ths9sHn-VudwvFf4cU4PNq4JkgYDxL4",
+    authDomain: "chatbot-sample-6a1d0.firebaseapp.com",
+    databaseURL: "https://chatbot-sample-6a1d0.firebaseio.com",
+    projectId: "chatbot-sample-6a1d0",
+    storageBucket: "chatbot-sample-6a1d0.appspot.com",
+    messagingSenderId: "964121723942"
+};
+firebase.initializeApp(config);
+
+let database = firebase.database();
+let dataRef = database.ref('/data');
+
+//   var database = firebase.database();
+//   var dataRef = database.ref('/data');
+        
+//   dataRef.once("value")
+//   .then(function(snapshot) {
+//     console.log(snapshot.child("breakfast").val());
+//     // sendTextMessage(senderID, snapshot.child("breakfast").val(), "");
+//   });
+
+
+let text = "main menu";
+let messengerButton = 
+
+    `
+    <html>
+      <head>
+        <title>Facebook Messenger Bot</title>
+      </head>
+      <body>
+      <h1>facebook messenger chatbot</h1>
+      <p>${text}</p>
+      <script type="text/javascript" src="bundle.js"></script>
+      </body>
+    </html>
+    
+    `;
+
 
 // The rest of the code implements the routes for our Express server.
 let app = express();
@@ -15,6 +57,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
 
 // Webhook validation
 app.get('/webhook', function(req, res) {
@@ -29,12 +72,16 @@ app.get('/webhook', function(req, res) {
   }
 });
 
+
+app.use('/', express.static(path.join(__dirname, 'public')));
+
 // Display the web page
-app.get('/', function(req, res) {
+app.get('/main', function(req, res) {
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.write(messengerButton); 
   res.end();
 });
+
 
 // Message processing
 app.post('/webhook', function (req, res) {
@@ -88,9 +135,9 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
 
   
-  if(message.nlp){
-
-if(message.nlp.entities.special_request){
+  if (messageAttachments) {
+    sendTextMessage(senderID, "Message with attachment received by me! Thank you!", "");
+  }else if(message.nlp.entities.special_request){
    
   if(message.nlp.entities.special_request[0].value === 'honey moon'){
     sendTextMessage(senderID, "We can offer special entertainment for marriage celebration. Please contact us for details.", "");
@@ -198,7 +245,7 @@ if(message.nlp.entities.special_request){
     } else{
       sendTextMessage(senderID, "I'm sorry to hear that", "");
     }
-    } else if(message.nlp.entities.goodbye && message.nlp.entities.goodbye[0].confidence > 0.7){
+    } else if(message.nlp.entities.goodbye && message.nlp.entities.goodbye[0].confidence > 0.8){
       sendTextMessage(senderID, "Good Bye!", "");
     } else if(message.nlp.entities.greetings){
       sendTextMessage(senderID, "Hello!", "");
@@ -209,8 +256,7 @@ if(message.nlp.entities.special_request){
       sendTextMessage(senderID, "OK, I searched some useful resource based on your request: ", messageText);
       showActivityInfo(senderID);      
          }
-
-    }
+      
   } else if(message.quick_reply){
 
       if(message.quick_reply.payload === "room"){
@@ -285,16 +331,19 @@ if(message.nlp.entities.special_request){
       break;
         
       case 'address':
-        sendTextMessage(senderID, "401-0304 Yamanashi Fujikawaguchiko Kawaguchi 2092 Japan", "");
+      sendTextMessage(senderID, "401-0304 Yamanashi Fujikawaguchiko Kawaguchi 2092 Japan", "");
+      break;
+        
+      case 'test':
+      dataRef.once("value").then(function(snapshot) {sendTextMessage(senderID, snapshot.child("test").val(), "");});
       break;
                   
       default:
         sendSecondOption(senderID);
 
     }
-  } else if (messageAttachments) {
-    sendTextMessage(senderID, "Message with attachment received by me! Thank you!", "");
-  }
+  } 
+
 }
 
 function receivedPostback(event) {
@@ -878,7 +927,7 @@ function callSendAPI(messageData) {
   });
 }
 
-//Persistent Menu somehow doesn't work,,
+//Persistent Menu. Change to the uppercase is not reflected on the page
 function addPersistentMenu(){
  request({
     url: 'https://graph.facebook.com/v2.6/me/messenger_profile',
